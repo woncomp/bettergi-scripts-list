@@ -38,6 +38,11 @@
     ]
   },
   {
+    "name": "countEnhancementOre",
+    "type": "checkbox",
+    "label": "识别【精锻用魔矿】数量"
+  },
+  {
     "name": "ore",
     "type": "select",
     "label": "当矿石未能识别/模式二时依次使用\n锻造用矿（默认：水晶块）",

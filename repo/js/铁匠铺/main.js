@@ -5,6 +5,7 @@ let smithyName = settings.smithyName || "枫丹铁匠铺";           // 铁匠�
 let primaryOre = settings.ore || "水晶块";                      // 主选矿石
 let secondaryOre = settings.secondaryOre || "萃凝晶";           // 备选矿石1
 let tertiaryOre = settings.tertiaryOre || "紫晶块";             // 备选矿石2
+let countEnhancementOre = settings.countEnhancementOre ?? false;// 识别【精锻用魔矿】数量
 let notice = settings.notice ?? false;                          // 通知状态
 let forgedOrNot = (settings.forgedOrNot && settings.forgedOrNot.trim() !== "") ? settings.forgedOrNot : "是"; // 是否锻造
 let model = settings.model || "模式一";                         // 模式选择
@@ -100,6 +101,10 @@ const ClaimAllRo = RecognitionObject.TemplateMatch(
     file.ReadImageMatSync("Assets/RecognitionObject/Icon/全部领取.png"),
     0, 900, 1920, 180
 );
+const ForgeQueueEnhancementOreRo = RecognitionObject.TemplateMatch(
+    file.ReadImageMatSync("Assets/RecognitionObject/Icon/ForgeQueueEnhancementOre.png"),
+    1200, 280, 300, 320
+); // 【锻造队列界面-精锻用魔矿】
 //地图界面图标
 const MapRo = RecognitionObject.TemplateMatch(
     file.ReadImageMatSync("Assets/RecognitionObject/icon/右上角巨诗.png"),
@@ -447,6 +452,20 @@ async function tryForgeOre(oreType, skipCheckOres = []) {
                 log.info(`找到矿石: ${OreChineseMap[oreType]}`);
                 // }
                 determineOre(oreType);
+
+                if (countEnhancementOre) {
+                    let forgeQueueEnhancementOreIcon = captureGameRegion().find(ForgeQueueEnhancementOreRo);
+                    if (forgeQueueEnhancementOreIcon.isExist()) {
+                        forgeQueueEnhancementOreIcon.click();
+                        await sleep(500);
+                        let ocrOreCount = captureGameRegion().find(RecognitionObject.ocr(800, 860, 320, 50));
+                        if (ocrOreCount.isExist()) {
+                            log.info("识别【精锻用魔矿】数量 {0}", ocrOreCount.text);
+                        }
+                        forgeQueueEnhancementOreIcon.click();
+                        await sleep(500);
+                    }
+                }
 
                 // 点击“开始锻造”按钮并进行OCR识别
                 const ocrRegion = { x: 660, y: 495, width: 1250 - 660, height: 550 - 495 };
